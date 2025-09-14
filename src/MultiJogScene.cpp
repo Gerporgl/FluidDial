@@ -300,9 +300,12 @@ public:
 
     void start_mpg_jog(int delta) {
         // e.g. $J=G91F1000X-10000
-        std::string cmd(inInches ? "$J=G91F400" : "$J=G91F10000");
+        //std::string cmd(inInches ? "$J=G91F400" : "$J=G91F");
+        // Not sure if inches needs anything different... only testing in mm
+        std::string cmd("$J=G91F");
         for (int axis = 0; axis < num_axes; ++axis) {
             if (selected(axis)) {
+                cmd += std::to_string(max(min(abs(1 * distance(axis)) / 6, 3000),1000));
                 cmd += axisNumToChar(axis);
                 cmd += e4_to_cstr(delta * distance(axis), inInches ? 3 : 2);
             }
