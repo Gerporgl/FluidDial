@@ -296,7 +296,7 @@ const int disconnect_interval_ms = 6000;
 bool starting = true;
 
 void request_status_report() {
-    fnc_putchar(0x11);           // XON; request software flow control
+    //fnc_putchar(0x11);           // XON; request software flow control
     fnc_realtime(StatusReport);  // Request fresh status
     next_ping_ms = milliseconds() + ping_interval_ms;
 }
