@@ -110,7 +110,7 @@ void init_fnc_uart(int uart_num, int tx_pin, int rx_pin) {
         return;
     };
     uart_driver_install(fnc_uart_port, 256, 0, 0, NULL, ESP_INTR_FLAG_IRAM);
-    uart_set_sw_flow_ctrl(fnc_uart_port, true, 64, 120);
+    //uart_set_sw_flow_ctrl(fnc_uart_port, true, 64, 120);
     uint32_t baud;
     uart_get_baudrate(fnc_uart_port, &baud);
 }
@@ -128,8 +128,8 @@ void init_system() {
     canvas.createSprite(240, 240);  // display.width(), display.height());
 }
 void resetFlowControl() {
-    fnc_putchar(0x11);
-    uart_ll_force_xon(fnc_uart_port);
+    //fnc_putchar(0x11);
+    //uart_ll_force_xon(fnc_uart_port);
 }
 
 extern "C" int milliseconds() {
