@@ -23,7 +23,7 @@
 // CYD that is supposed to control battery charging, cutting the
 // traces that connect it to the battery circuit and running a wire
 // over to the photoresistor.
-int lockout_pin = GPIO_NUM_34;
+int lockout_pin = GPIO_NUM_35;
 
 m5::Touch_Class  xtouch;
 m5::Touch_Class& touch = xtouch;
@@ -284,7 +284,7 @@ int num_layouts = sizeof(layouts)/sizeof(layouts[0]);
 // clang-format on
 
 Layout* layout;
-int32_t layout_num = 0;
+int32_t layout_num = 4;
 
 Point sprite_offset;
 void  set_layout(int n) {
