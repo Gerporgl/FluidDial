@@ -100,15 +100,18 @@ public:
             enableIcons();
         }
     }
+    bool never_initialized=true;
     void onStateChange(state_t old_state) override {
         if (state != Disconnected) {
             enableIcons();
-            if (old_state == Disconnected) {
+        }
+        if(never_initialized){
+            never_initialized=false;
 #ifdef AUTO_JOG_SCENE
-                if (state == Idle) {
+                //if (state == Idle) {
                     push_scene(&jogScene);
                     return;
-                }
+                //}
 #endif
 #ifdef AUTO_HOMING_SCENE
                 if (state == Alarm && lastAlarm == 14) {  // Unknown or Unhomed
@@ -116,8 +119,8 @@ public:
                     return;
                 }
 #endif
-            }
         }
+        //
         reDisplay();
     }
 } menuScene;
