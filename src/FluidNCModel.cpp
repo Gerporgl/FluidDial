@@ -211,7 +211,7 @@ extern "C" void show_state(const char* state_string) {
             fnc_realtime((realtime_cmd_t)0x0c);  // Ctrl-L - echo off
             send_line("$G");                     // Refresh GCode modes
             send_line("$G");                     // Refresh GCode modes
-            send_line("$RI=200");
+            //send_line("$RI=200");
             init_file_list();
             detect_homing_info();
         }
