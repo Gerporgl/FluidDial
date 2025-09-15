@@ -401,7 +401,8 @@ public:
         zero_axes();
     }
 
-    void start_mpg_jog(int delta) {
+        void start_mpg_jog(int delta) {
+
         // e.g. $J=G91F1000X-10000
         //std::string cmd(inInches ? "$J=G91F400" : "$J=G91F");
         // Not sure if inches needs anything different... only testing in mm
@@ -409,24 +410,28 @@ public:
         std::string cmd("$J=G91F");
         for (int axis = 0; axis < num_axes; ++axis) {
             if (selected(axis)) {
-                int speed=50;
-                switch(distance(axis)){
-                    case 100:
-                        speed=250;
-                        break;
-                    case 1000:
-                        speed=1200;
-                        break;
-                    case 10000:
-                        speed=2000;
-                        break;
-                }
+                int speed=1000;
+
+                int range=abs(distance(axis));
+                if(range <= 100)
+                    speed=250;
+                else if (range<=1000)
+                    speed=1000;
+                else
+                    speed=2000;
+
                 cmd += std::to_string(speed);
                 cmd += axisNumToChar(axis);
                 cmd += e4_to_cstr(delta * distance(axis), inInches ? 3 : 2);
             }
         }
         send_line(cmd.c_str());
+    }
+
+    void onUILocked() {
+        cancel_jog();
+    }
+    void onUIUnlocked() {
     }
     void start_button_jog(bool negative) {
         // e.g. $J=G91F1000X-10000
