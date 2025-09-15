@@ -37,6 +37,8 @@ public:
     virtual void onRedButtonRelease() {}
     virtual void onGreenButtonPress() {}
     virtual void onGreenButtonRelease() {}
+    virtual void onUILocked() {}
+    virtual void onUIUnlocked() {}
     virtual void onDialButtonPress() {}
     virtual void onDialButtonRelease() {}
     virtual void onTouchPress() {}

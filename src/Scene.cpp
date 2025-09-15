@@ -81,6 +81,13 @@ void dispatch_button(bool pressed, int button) {
                 current_scene->onGreenButtonRelease();
             }
             break;
+        case 3:
+            if (pressed) {
+                current_scene->onUIUnlocked();
+            } else {
+                current_scene->onUILocked();
+            }
+            break;
         default:
             break;
     }
@@ -166,6 +173,7 @@ void dispatch_events() {
             current_scene->onEncoder(scaledDelta);
         }
     }
+    static bool last_locked_change = false;
 
     if (!ui_locked()) {
         bool pressed;
@@ -173,9 +181,22 @@ void dispatch_events() {
         if (switch_button_touched(pressed, button)) {
             dispatch_button(pressed, button);
         }
-
+        if(last_locked_change)
+        {
+            last_locked_change=false;
+            dispatch_button(true, 3);
+        }
         dispatch_touch();
     }
+    else
+    {
+        if(!last_locked_change)
+        {
+            last_locked_change=true;
+            dispatch_button(false, 3);
+        }        
+    }
+
 
     if (!fnc_is_connected()) {
         if (state != Disconnected) {
