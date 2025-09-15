@@ -12,7 +12,7 @@ extern Scene fileSelectScene;
 
 static const char* multi_help_text[] = { "Help",
                                        "Touch:",
-                                       "",
+                                       "Hold axis to zero it",
                                        "Turn: jog by digit",
                                        "Red/Grn: hold to jog",
                                        "Swipe left to exit",
@@ -81,13 +81,7 @@ public:
                     centered_text("Touch to cancel jog", 185, YELLOW, TINY);
                 }
             } else {
-                std::string dialLegend("Zero");
-                for (int axis = 0; axis < num_axes; axis++) {
-                    if (selected(axis)) {
-                        dialLegend += axisNumToChar(axis);
-                    }
-                }
-                drawButtonLegends("Jog-", "Jog+", dialLegend.c_str());
+                drawButtonLegends("Jog-", "Jog+", "Back");
             }
         }
         refreshDisplay();
@@ -100,6 +94,12 @@ public:
                 cmd += "0";
             }
         }
+        send_line(cmd.c_str());
+    }
+    void zero_axis(char axis) {
+        std::string cmd = "G10L20P0";
+        cmd+=axis;
+        cmd+="0";
         send_line(cmd.c_str());
     }
     void onEntry(void* arg) {
@@ -296,101 +296,78 @@ public:
             case 0:
                     unselect_all();
                     select(0);
+                    return;
                 break;
             case 1:
                     unselect_all();
                     select(1);
+                    return;
                 break;
             case 2:
                     unselect_all();
                     select(2);
+                    return;
                 break;
             case 3:
                 set_dist_index(0,2);
                 set_dist_index(1,2);
                 set_dist_index(2,2);
+                return;
                 break;
             case 4:
                 set_dist_index(0,1);
                 set_dist_index(1,1);
                 set_dist_index(2,1);
+                return;
                 break;
             case 5:
                 set_dist_index(0,0);
                 set_dist_index(1,0);
                 set_dist_index(2,0);
+                return;
                 break;
             case 6:
                 if (state == Idle || state == Alarm)
                     send_line("$H");
+                return;
                 break;
             case 7:
                 if (state == Idle)
                     send_linef("$Localfs/Run=%s", "macros/probe_right.g");
+                return;
                 break;
             case 8:
                 if (state == Idle)
                     send_linef("$Localfs/Run=%s", "macros/probe_left.g");
+                return;
                 break;
             case 9:
                 if (state == Idle)
                     send_linef("$Localfs/Run=%s", "macros/probe_z.g");
+                return;
                 break;
             case 10:
                 if (state == Idle)
                     send_linef("$Localfs/Run=%s", "macros/probe_front.g");
+                return;
                 break;
             case 11:
                 if (state == Idle)
                     send_linef("$Localfs/Run=%s", "macros/probe_rear.g");
+                    return;
                 break;
         }
-
-        /*if (touchIsCenter()) {
-            push_scene(&helpScene, (void*)_help_text);
-            return;
-        }*/
-
-        // Convert from screen coordinates to 0,0 in the center
-        /*Point ctr = Point { touchX, touchY }.from_display();
-
-        int x = ctr.x;
-        int y = ctr.y;
-
-        int center_radius = display_short_side() / 6;
-
-        // Sense touches at top, bottom, left, and right
-        if (std::abs(y) > std::abs(x)) {
-            if (y > 0) {
-                touch_top();
-            } else {
-                touch_bottom();
-            }
-        } else {
-            if (x > 0) {
-                touch_right();
-            } else {
-                touch_left();
-            }
-        }*/
+        push_scene(&helpScene, (void*)_help_text);
     }
+
     void onTouchHold() {
-        // Select multiple axes
-        if (touchX < 80) {
-            int axis = which(touchX, touchY);
-            if (selected(axis) && !only(axis)) {
-                unselect(axis);
-            } else {
-                select(axis);
-            }
-            reDisplay();
-            return;
-        }
-#if 0
-        if (touchX < 160 && touchY > 160) {
-            confirm_zero_axes();
-        }
-#endif
+       int tb=getTouchedButton();
+        if(tb==0)
+            zero_axis('X');
+        else if(tb==1)
+            zero_axis('Y');
+        else if(tb==2)
+            zero_axis('Z');
     }
 
     void onRightFlick() override {
@@ -398,7 +375,7 @@ public:
     }
 
     void onDialButtonPress() {
-        zero_axes();
+        pop_scene();
     }
 
         void start_mpg_jog(int delta) {
