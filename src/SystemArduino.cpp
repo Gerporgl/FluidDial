@@ -110,7 +110,9 @@ void init_fnc_uart(int uart_num, int tx_pin, int rx_pin) {
         return;
     };
     uart_driver_install(fnc_uart_port, 256, 0, 0, NULL, ESP_INTR_FLAG_IRAM);
-    //uart_set_sw_flow_ctrl(fnc_uart_port, true, 64, 120);
+    #ifndef DISABLE_FLOW_CONTROL
+        uart_set_sw_flow_ctrl(fnc_uart_port, true, 64, 120);
+    #endif
     uint32_t baud;
     uart_get_baudrate(fnc_uart_port, &baud);
 }
@@ -125,11 +127,13 @@ void init_system() {
 
     // Make an offscreen canvas that can be copied to the screen all at once
     canvas.setColorDepth(8);
-    canvas.createSprite(240, 240);  // display.width(), display.height());
+    canvas.createSprite(240, 320); // 240);  // display.width(), display.height());
 }
 void resetFlowControl() {
-    //fnc_putchar(0x11);
-    //uart_ll_force_xon(fnc_uart_port);
+#ifndef DISABLE_FLOW_CONTROL
+    fnc_putchar(0x11);
+    uart_ll_force_xon(fnc_uart_port);
+#endif
 }
 
 extern "C" int milliseconds() {

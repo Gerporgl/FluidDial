@@ -65,8 +65,11 @@ LGFX_Device  xdisplay;
 LGFX_Device& display = xdisplay;
 
 LGFX_Sprite canvas(&display);
+#ifndef CYD_BUTTONS
 LGFX_Sprite buttons[3] = { &display, &display, &display };
 LGFX_Sprite locked_button(&display);
+#endif
+LGFX_Sprite *lock_icon;
 
 uint8_t base_rotation = 2;
 
@@ -241,7 +244,7 @@ const int n_buttons      = 3;
 const int button_w       = 80;
 const int button_h       = 80;
 const int button_half_wh = button_w / 2;
-const int sprite_wh      = 240;
+const int sprite_wh      = 310; //240;
 Point     button_wh(button_w, button_h);
 
 int button_colors[] = { RED, YELLOW, GREEN };
@@ -378,6 +381,7 @@ void choose_board() {
 }
 #endif
 
+#ifndef CYD_BUTTONS
 void initButton(int n) {
     buttons[n].setColorDepth(display.getColorDepth());
     buttons[n].createSprite(button_w, button_h);
@@ -421,6 +425,14 @@ static void initButtons() {
     // Greyed-out button for locked state
     initLockedButton();
 }
+#endif
+
+void initLockIcons() {
+    lock_icon = new LGFX_Sprite(&canvas);
+    lock_icon->setColorDepth(canvas.getColorDepth());
+    lock_icon->createSprite(16,16);
+    drawPngFile(lock_icon, "lock_icon.png", 0, 0);
+}
 
 void init_hardware() {
 #ifdef DEBUG_TO_USB
@@ -463,6 +475,7 @@ void init_hardware() {
 
 int last_locked = -1;
 
+#ifndef CYD_BUTTONS
 void redrawButtons() {
     display.startWrite();
     for (int i = 0; i < n_buttons; i++) {
@@ -473,16 +486,21 @@ void redrawButtons() {
     }
     display.endWrite();
 }
+#endif
 
 void show_logo() {
     display.clear();
     display.drawPngFile(
-        LittleFS, "/fluid_dial.png", sprite_offset.x, sprite_offset.y, sprite_wh, sprite_wh, 0, 0, 0.0f, 0.0f, datum_t::middle_center);
+        LittleFS, "/fluid_dial.png", sprite_offset.x, sprite_offset.y, 240, 240, 0, 0, 0.0f, 0.0f, datum_t::middle_center);
 }
 
 void base_display() {
+    initLockIcons();
+    drawLockIcons(last_locked);
+#ifndef CYD_BUTTONS
     initButtons();
     redrawButtons();
+#endif
 }
 void next_layout(int delta) {
     layout_num += delta;
@@ -496,7 +514,10 @@ void next_layout(int delta) {
     delay(200);
     set_layout(layout_num);
     nvs_set_i32(hw_nvs, "layout", layout_num);
+#ifndef CYD_BUTTONS
     redrawButtons();
+#endif
+    drawLockIcons(last_locked);
 }
 
 void system_background() {
@@ -555,7 +576,11 @@ bool ui_locked() {
     bool locked = digitalRead(lockout_pin);
     if ((int)locked != last_locked) {
         last_locked = locked;
+#ifndef CYD_BUTTONS
         redrawButtons();
+#endif
+        drawLockIcons(last_locked);
+        refreshDisplay();
     }
     return locked;
 }

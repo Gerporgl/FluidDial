@@ -50,6 +50,7 @@ public:
     DRO(int x, int y, int width, int height) : Stripe(x, y, width, height, MEDIUM_MONO) {}
     void draw(int axis, bool highlight);
     void draw(int axis, int hl_digit, bool highlight);
+    void draw(int axis_x, int axis_y, int digits_x, int digits_y, int axis, int hl_digit, bool highlight);
     void drawHoming(int axis, bool highlight, bool homed);
 };
 
@@ -59,7 +60,7 @@ public:
 
 LGFX_Sprite* createPngBackground(const char* filename);
 
-void drawBackground(LGFX_Sprite* sprite);
+void drawBackground(LGFX_Sprite* sprite, int x=0, int y=0);
 void drawBackground(int color);
 void drawStatus();
 void drawStatusTiny(int y);
@@ -82,6 +83,7 @@ void drawOutlinedRect(int x, int y, int width, int height, int bgcolor, int outl
 void drawOutlinedRect(Point xy, int width, int height, int bgcolor, int outlinecolor);
 
 void drawButtonLegends(const char* red, const char* green, const char* orange);
+void drawLockIcons(bool locked);
 void drawMenuTitle(const char* name);
 
 void drawPngFile(const char* filename, Point xy);
@@ -92,3 +94,4 @@ void refreshDisplay();
 void drawError();
 
 extern Point sprite_offset;
+extern LGFX_Sprite *lock_icon;

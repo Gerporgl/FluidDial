@@ -285,18 +285,20 @@ extern "C" void show_gcode_modes(struct gcode_modes* modes) {
 int disconnect_ms = 0;
 int next_ping_ms  = 0;
 
-// If we haven't heard from FluidNC in 4 seconds for some other reason,
+// If we haven't heard from FluidNC in 0.5 seconds for some other reason,
 // send a status report request.
-const int ping_interval_ms = 4000;
+const int ping_interval_ms = 500;
 
-// If we haven't heard from FluidNC in 6 seconds for any reason, declare
+// If we haven't heard from FluidNC in 2.5 seconds for any reason, declare
 // FluidNC unresponsive.  After a ping, FluidNC has 2 seconds to respond.
-const int disconnect_interval_ms = 6000;
+const int disconnect_interval_ms = 2500;
 
 bool starting = true;
 
 void request_status_report() {
-    //fnc_putchar(0x11);           // XON; request software flow control
+#ifndef DISABLE_FLOW_CONTROL
+    fnc_putchar(0x11);           // XON; request software flow control
+#endif
     fnc_realtime(StatusReport);  // Request fresh status
     next_ping_ms = milliseconds() + ping_interval_ms;
 }

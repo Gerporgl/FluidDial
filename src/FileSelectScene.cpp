@@ -11,7 +11,11 @@
 
 extern Scene filePreviewScene;
 
+#ifndef ALTERNATE_MF_SCENE
 extern Scene& jogScene;
+#else
+extern Scene& mfScene;
+#endif
 
 class FileSelectScene : public Scene {
 private:
@@ -167,7 +171,11 @@ public:
     };
     // clang-format on
 
+#ifndef ALTERNATE_MF_SCENE
     void onRightFlick() { activate_scene(&jogScene); }
+#else
+    void onRightFlick() { activate_scene(&mfScene); }
+#endif
 
     void showFiles() {
         // canvas.createSprite(240, 240);

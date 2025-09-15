@@ -35,6 +35,7 @@ void auto_text(const std::string& txt,
                bool               tryfonts = true,
                bool               trimleft = false);
 
+void sprite_text(LGFX_Sprite* sprite, const char* msg, int x, int y, int color, fontnum_t fontnum = TINY, int datum = middle_center);
 void text(const char* msg, int x, int y, int color, fontnum_t fontnum = TINY, int datum = middle_center);
 void text(const std::string& msg, int x, int y, int color, fontnum_t fontnum = TINY, int datum = middle_center);
 

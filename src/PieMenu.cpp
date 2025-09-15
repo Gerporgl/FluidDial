@@ -70,7 +70,9 @@ int PieMenu::touchedItem(int x, int y) {
 }
 void PieMenu::menuBackground() {
     background();
+    drawMenuTitle(""); // The menu title includes
     text(selectedItem()->name(), { 0, -15 }, WHITE, SMALL);
+    //
     drawStatusSmall(90);
 }
 
@@ -107,5 +109,6 @@ void PieMenu::onTouchClick() {
 }
 
 void PieMenu::onStateChange(state_t old_state) {
+    //
     reDisplay();
 }

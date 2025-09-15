@@ -65,13 +65,14 @@ void drawPngFile(const char* filename, Point xy) {
 void drawPngBackground(const char* filename) {
     drawPngFile(filename, 0, 0);
 }
-void drawBackground(LGFX_Sprite* sprite) {
-    sprite->pushSprite(0, 0);
+void drawBackground(LGFX_Sprite* sprite, int x, int y) {
+    sprite->pushSprite(x, y);
 }
+
 LGFX_Sprite* createPngBackground(const char* filename) {
     LGFX_Sprite* sprite = new LGFX_Sprite(&canvas);
     sprite->setColorDepth(canvas.getColorDepth());
-    sprite->createSprite(canvas.width(), canvas.height());
+    sprite->createSprite(240,256);//,320);//canvas.width(), canvas.height());
     drawPngFile(sprite, filename, 0, 0);
     return sprite;
 }
@@ -114,20 +115,24 @@ std::map<state_t, int> stateFGColors = {
 
 void drawStatus() {
     static constexpr int x      = 100;
-    static constexpr int y      = 24;
-    static constexpr int width  = 140;
-    static constexpr int height = 36;
+    static constexpr int y      = 20;
+    static constexpr int width  = 240;
+    static constexpr int height = 24;
 
     int bgColor = stateBGColors[state];
     if (bgColor != 1) {
-        canvas.fillRoundRect((display_short_side() - width) / 2, y, width, height, 5, bgColor);
+        canvas.fillRoundRect(0, y, width, height, 5, bgColor);
     }
     int fgColor = stateFGColors[state];
     if (state == Alarm) {
-        centered_text(my_state_string, y + height / 2 - 4, fgColor, SMALL);
-        centered_text(alarm_name_short[lastAlarm], y + height / 2 + 12, fgColor);
+        std::string alarm = my_state_string;
+        alarm += ": ";
+        alarm += alarm_name_short[lastAlarm];
+        text(alarm, width/2, y + height / 2 + 3, fgColor, TINY, middle_center);
+        //text(my_state_string, 60, y + height / 2 + 3, fgColor, TINY, middle_center);
+        //text(alarm_name_short[lastAlarm], 180, y + height / 2 + 3, fgColor, TINY, middle_center);
     } else {
-        centered_text(my_state_string, y + height / 2 + 3, fgColor, MEDIUM);
+        centered_text(my_state_string, y + height / 2 + 3, fgColor, SMALL);
     }
 }
 
@@ -176,7 +181,7 @@ void Stripe::draw(const char* center, bool highlighted) {
 }
 
 #define PUSH_BUTTON_LINE 212
-#define DIAL_BUTTON_LINE 228
+#define DIAL_BUTTON_LINE 311 //228
 
 static int side_button_line() {
     return round_display ? PUSH_BUTTON_LINE : DIAL_BUTTON_LINE;
@@ -189,14 +194,13 @@ void drawButtonLegends(const char* red, const char* green, const char* orange) {
     centered_text(orange, DIAL_BUTTON_LINE, ORANGE);
 }
 
-void putDigit(int& n, int x, int y, int color) {
+void putDigit(int& n, int x, int y, int color,  fontnum_t font = MEDIUM) {
     char txt[2] = { '\0', '\0' };
     txt[0]      = "0123456789"[n % 10];
     n /= 10;
-    text(txt, x, y, color, MEDIUM, middle_right);
+    text(txt, x, y, color, font, middle_right);
 }
-void fancyNumber(pos_t n, int n_decimals, int hl_digit, int x, int y, int text_color, int hl_text_color) {
-    fontnum_t font     = SMALL;
+void fancyNumber(pos_t n, int n_decimals, int hl_digit, int x, int y, int text_color, int hl_text_color, fontnum_t font = SMALL, int leading=1) {
     int       n_digits = n_decimals + 1;
     int       i;
     bool      isneg = n < 0;
@@ -221,24 +225,25 @@ void fancyNumber(pos_t n, int n_decimals, int hl_digit, int x, int y, int text_c
         n *= 10;
     }
 #endif
-    const int char_width = 20;
+    int char_width = 20;
+    if(font==TINY)
+        char_width = 11;
 
     int ni = (int)n;
     for (i = 0; i < n_decimals; i++) {
-        putDigit(ni, x, y, i == hl_digit ? hl_text_color : text_color);
+        putDigit(ni, x, y, i == hl_digit ? hl_text_color : text_color, font);
         x -= char_width;
     }
     if (n_decimals) {
-        text(".", x - 10, y, text_color, MEDIUM, middle_center);
-        x -= char_width;
+        text(".", x - (char_width/4), y, text_color, font, middle_center);
+        x -= char_width/2;
     }
     do {
-        putDigit(ni, x, y, i++ == hl_digit ? hl_text_color : text_color);
+        putDigit(ni, x, y, i++ == hl_digit ? hl_text_color : text_color, font);
         x -= char_width;
     } while (ni || i <= hl_digit);
-    if (isneg) {
-        text("-", x, y, text_color, MEDIUM, middle_right);
-    }
+    if (isneg)
+        text("-", x, y, text_color, font, middle_right);
 }
 
 void DRO::drawHoming(int axis, bool highlight, bool homed) {
@@ -254,6 +259,12 @@ void DRO::draw(int axis, int hl_digit, bool highlight) {
     advance();
 }
 
+void DRO::draw(int axis_x, int axis_y, int digits_x, int digits_y, int axis, int hl_digit, bool highlight){
+    text(axisNumToCStr(axis), axis_x, axis_y, highlight ? GREEN : WHITE, SMALL, middle_center);
+    fancyNumber(
+        myAxes[axis], num_digits(), hl_digit, digits_x, digits_y, WHITE, WHITE, TINY);
+}
+
 void DRO::draw(int axis, bool highlight) {
     Stripe::draw(axisNumToChar(axis), pos_to_cstr(myAxes[axis], num_digits()), highlight, myLimitSwitches[axis] ? GREEN : WHITE);
 }
@@ -263,8 +274,26 @@ void LED::draw(bool highlighted) {
     _y += _gap;
 }
 
+void drawLockIcons(bool locked) {
+   // display.startWrite();
+
+    if(locked)
+    {
+        lock_icon->pushSprite(1, 1);
+        lock_icon->pushSprite(223, 1);
+    }
+    else
+    {
+        canvas.fillRect(0,0,16,16,BLACK);
+        canvas.fillRect(223,0,16,16,BLACK);
+    }
+}
+
+extern bool last_locked;
+
 void drawMenuTitle(const char* name) {
     centered_text(name, 12);
+    drawLockIcons(last_locked);
 }
 
 void refreshDisplay() {

@@ -34,12 +34,16 @@ public:
     IB(const char* text, Scene* scene, const char* filename) : ImageButton(text, scene, filename, buttonRadius, WHITE) {}
 };
 
+#ifndef ALTERNATE_MF_SCENE
 extern Scene homingScene;
-//extern Scene joggingScene;
-//extern Scene joggingScene2;
+extern Scene joggingScene;
+extern Scene joggingScene2;
 extern Scene multiJogScene;
 extern Scene probingScene;
 extern Scene toolchangeScene;
+#else
+extern Scene multiFunctionScene;
+#endif
 extern Scene statusScene;
 extern Scene macroMenu;
 
@@ -49,16 +53,23 @@ extern Scene wmbFileSelectScene;
 extern Scene fileSelectScene;
 #endif
 
+#ifndef ALTERNATE_MF_SCENE
 Scene& jogScene = multiJogScene;
+#else
+Scene& mfScene = multiFunctionScene;
+#endif
 
 extern Scene controlScene;
 extern Scene aboutScene;
 
+#ifndef ALTERNATE_MF_SCENE
 IB statusButton("Status", &statusScene, "statustp.png");
 IB homingButton("Homing", &homingScene, "hometp.png");
 IB jogButton("Jog", &jogScene, "jogtp.png");
 IB probeButton("Probe", &probingScene, "probetp.png");
-IB toolchangeButton("Tools", &toolchangeScene, "toolchangetp.png");
+#else
+IB multiFunctionButton("Multi", &multiFunctionScene, "jogtp.png");
+#endif
 
 #ifdef USE_WMB_FSS
 IB filesButton("Files", &wmbFileSelectScene, "filestp.png");
@@ -73,21 +84,27 @@ class MenuScene : public PieMenu {
 public:
     MenuScene() : PieMenu("Main", buttonRadius, menu_help_text) {}
     void disableIcons() {
+#ifndef ALTERNATE_MF_SCENE
         statusButton.disable();
         homingButton.disable();
         jogButton.disable();
         probeButton.disable();
-        toolchangeButton.disable();
+#else
+        multiFunctionButton.disable();
+#endif
         filesButton.disable();
         controlButton.disable();
         setupButton.enable();
     }
     void enableIcons() {
+#ifndef ALTERNATE_MF_SCENE
         statusButton.enable();
         homingButton.enable();
         jogButton.enable();
         probeButton.enable();
-        toolchangeButton.enable();
+#else
+        multiFunctionButton.enable();
+#endif
         filesButton.enable();
         controlButton.enable();
         setupButton.enable();
@@ -99,19 +116,27 @@ public:
         } else {
             enableIcons();
         }
+        // This would be nice as it goes more immediately to this scene and never show the pie menu, 
+        // but this somehow prevent to exit that scene (with swipe left) to go back to the pie menu. We need to find a better way to do this.
+        //push_scene(&multiFunctionScene);
     }
-    bool never_initialized=true;
+
     void onStateChange(state_t old_state) override {
+        static bool never_initialized=true;
         if (state != Disconnected) {
             enableIcons();
         }
         if(never_initialized){
             never_initialized=false;
+#ifdef AUTO_MF_SCENE
+                push_scene(&multiFunctionScene);
+                return;
+#endif
 #ifdef AUTO_JOG_SCENE
-                //if (state == Idle) {
-                    push_scene(&jogScene);
+                if (state == Idle) {
+                    push_scene(&multiFunctionScene);
                     return;
-                //}
+                }
 #endif
 #ifdef AUTO_HOMING_SCENE
                 if (state == Alarm && lastAlarm == 14) {  // Unknown or Unhomed
@@ -126,11 +151,14 @@ public:
 } menuScene;
 
 Scene* initMenus() {
+#ifndef ALTERNATE_MF_SCENE
     menuScene.addItem(&statusButton);
     menuScene.addItem(&homingButton);
     menuScene.addItem(&jogButton);
     menuScene.addItem(&probeButton);
-    menuScene.addItem(&toolchangeButton);
+#else
+    menuScene.addItem(&multiFunctionButton);
+#endif
     menuScene.addItem(&filesButton);
     menuScene.addItem(&controlButton);
     menuScene.addItem(&setupButton);

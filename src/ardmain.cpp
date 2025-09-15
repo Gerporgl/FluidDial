@@ -19,7 +19,7 @@ void setup() {
     display.setBrightness(aboutScene.getBrightness());
 
     show_logo();
-    delay_ms(2000);  // view the logo and wait for the debug port to connect
+    delay_ms(500);  // view the logo and wait for the debug port to connect
 
     base_display();
 

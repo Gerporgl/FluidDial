@@ -13,6 +13,13 @@ const GFXfont* font[] = {
     &fonts::FreeMonoBold18pt7b,  // MEDIUM_MONO
 };
 
+void sprite_text(LGFX_Sprite* sprite, const char* msg, int x, int y, int color, fontnum_t fontnum, int datum) {
+    sprite->setFont(font[fontnum]);
+    sprite->setTextDatum(datum);
+    sprite->setTextColor(color);
+    sprite->drawString(msg, x, y);
+}
+
 void text(const char* msg, int x, int y, int color, fontnum_t fontnum, int datum) {
     canvas.setFont(font[fontnum]);
     canvas.setTextDatum(datum);

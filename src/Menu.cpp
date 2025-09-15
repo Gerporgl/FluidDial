@@ -17,7 +17,7 @@ void ImageButton::show(const Point& where) {
     } else {
         drawFilledCircle(where, _radius - 2, _disabled ? DARKGREY : LIGHTGREY);
     }
-    drawPngFile(_filename, where);
+    drawPngFile(_filename, where.x, where.y+40);
 }
 void RectangularButton::show(const Point& where) {
     drawOutlinedRect(where, _width, _height, _highlighted ? BLUE : _outline_color, _bg_color);
