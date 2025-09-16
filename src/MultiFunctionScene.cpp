@@ -31,7 +31,7 @@ private:
     LGFX_Sprite* _bg_image      = nullptr;
 
 public:
-    MultiFunctionScene() : Scene("Status", 4, multi_help_text) {}
+    MultiFunctionScene() : Scene("MPG", 4, multi_help_text) {}
 
     e4_t distance(int axis) { return e4_power10(_dist_index[axis] - num_digits()); }
     void unselect_all() { _selected_mask = 0; }
@@ -103,12 +103,18 @@ public:
         send_line(cmd.c_str());
     }
     void onEntry(void* arg) {
-        if (arg && strcmp((const char*)arg, "Confirmed") == 0) {
-            zero_axes();
-        }
-        if (initPrefs()) {
-            _bg_image = createPngBackground("/multibg.png");
+        // if (arg && strcmp((const char*)arg, "Confirmed") == 0) {
+        //     zero_axes();
+        // }
+        if(!_bg_image)
+        {
+            _bg_image = new LGFX_Sprite(&canvas);
+            _bg_image->setColorDepth(canvas.getColorDepth());
+            _bg_image->createSprite(240,256);
             drawCommandButtons(_bg_image);
+        }
+
+        if (initPrefs()) {
 
             for (size_t axis = 0; axis < 3; axis++) {
                 getPref("DistanceDigit", axis, &_dist_index[axis]);

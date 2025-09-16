@@ -40,10 +40,10 @@ extern Scene joggingScene;
 extern Scene joggingScene2;
 extern Scene multiJogScene;
 extern Scene probingScene;
-extern Scene toolchangeScene;
 #else
 extern Scene multiFunctionScene;
 #endif
+extern Scene toolchangeScene;
 extern Scene statusScene;
 extern Scene macroMenu;
 
@@ -62,14 +62,15 @@ Scene& mfScene = multiFunctionScene;
 extern Scene controlScene;
 extern Scene aboutScene;
 
-#ifndef ALTERNATE_MF_SCENE
 IB statusButton("Status", &statusScene, "statustp.png");
+#ifndef ALTERNATE_MF_SCENE
 IB homingButton("Homing", &homingScene, "hometp.png");
 IB jogButton("Jog", &jogScene, "jogtp.png");
 IB probeButton("Probe", &probingScene, "probetp.png");
 #else
-IB multiFunctionButton("Multi", &multiFunctionScene, "jogtp.png");
+IB multiFunctionButton("MPG", &multiFunctionScene, "jogtp.png");
 #endif
+IB toolchangeButton("Tools", &toolchangeScene, "toolchangetp.png");
 
 #ifdef USE_WMB_FSS
 IB filesButton("Files", &wmbFileSelectScene, "filestp.png");
@@ -84,11 +85,12 @@ class MenuScene : public PieMenu {
 public:
     MenuScene() : PieMenu("Main", buttonRadius, menu_help_text) {}
     void disableIcons() {
-#ifndef ALTERNATE_MF_SCENE
         statusButton.disable();
+#ifndef ALTERNATE_MF_SCENE
         homingButton.disable();
         jogButton.disable();
         probeButton.disable();
+        toolchangeButton.disable();
 #else
         multiFunctionButton.disable();
 #endif
@@ -97,11 +99,12 @@ public:
         setupButton.enable();
     }
     void enableIcons() {
-#ifndef ALTERNATE_MF_SCENE
         statusButton.enable();
+#ifndef ALTERNATE_MF_SCENE
         homingButton.enable();
         jogButton.enable();
         probeButton.enable();
+        toolchangeButton.enable();
 #else
         multiFunctionButton.enable();
 #endif
@@ -158,7 +161,9 @@ Scene* initMenus() {
     menuScene.addItem(&probeButton);
 #else
     menuScene.addItem(&multiFunctionButton);
+    menuScene.addItem(&statusButton);
 #endif
+    menuScene.addItem(&toolchangeButton);
     menuScene.addItem(&filesButton);
     menuScene.addItem(&controlButton);
     menuScene.addItem(&setupButton);
