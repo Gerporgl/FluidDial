@@ -90,10 +90,10 @@ public:
         homingButton.disable();
         jogButton.disable();
         probeButton.disable();
-        toolchangeButton.disable();
 #else
         multiFunctionButton.disable();
 #endif
+        toolchangeButton.disable();
         filesButton.disable();
         controlButton.disable();
         setupButton.enable();
@@ -104,10 +104,10 @@ public:
         homingButton.enable();
         jogButton.enable();
         probeButton.enable();
-        toolchangeButton.enable();
 #else
         multiFunctionButton.enable();
 #endif
+        toolchangeButton.enable();
         filesButton.enable();
         controlButton.enable();
         setupButton.enable();
