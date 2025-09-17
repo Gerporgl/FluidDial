@@ -109,7 +109,7 @@ void init_fnc_uart(int uart_num, int tx_pin, int rx_pin) {
         while (1) {}
         return;
     };
-    uart_driver_install(fnc_uart_port, 256, 0, 0, NULL, ESP_INTR_FLAG_IRAM);
+    uart_driver_install(fnc_uart_port, 8192, 0, 0, NULL, ESP_INTR_FLAG_IRAM);
     #ifndef DISABLE_FLOW_CONTROL
         uart_set_sw_flow_ctrl(fnc_uart_port, true, 64, 120);
     #endif
