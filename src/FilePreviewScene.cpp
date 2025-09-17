@@ -118,7 +118,7 @@ public:
         }
 
         drawButtonLegends(redLabel, grnLabel, "Back");
-        drawStatusSmall(21);
+        drawStatus();
         refreshDisplay();
     }
 };

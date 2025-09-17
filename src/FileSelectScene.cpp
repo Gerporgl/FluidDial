@@ -299,7 +299,7 @@ public:
             }
         }  // for(display_slot)
         buttonLegends();
-        drawStatusSmall(21);
+        drawStatus();
         refreshDisplay();
     }
 
