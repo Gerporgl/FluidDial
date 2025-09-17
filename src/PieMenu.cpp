@@ -6,6 +6,12 @@
 #include "Drawing.h"
 #include "polar.h"
 
+#ifdef ALTERNATE_MF_SCENE
+#define OFFSET_Y 40
+#else
+#define OFFSET_Y 0
+#endif
+
 void PieMenu::calculatePositions() {
     _num_slopes = num_items() / 2;  // Rounded down
 
@@ -24,7 +30,7 @@ void PieMenu::calculatePositions() {
     for (size_t i = 0; i < num_items(); i++) {
         int x, y;
         r_degrees_to_xy(layout_radius, angle, &x, &y);
-        Point center { x, y };
+        Point center { x, y-OFFSET_Y };
         setPosition(i, center);
         angle -= dtheta;
     }
@@ -71,9 +77,9 @@ int PieMenu::touchedItem(int x, int y) {
 void PieMenu::menuBackground() {
     background();
     drawMenuTitle(""); // The menu title includes
-    text(selectedItem()->name(), { 0, -15 }, WHITE, SMALL);
+    text(selectedItem()->name(), { 0, -15-OFFSET_Y }, WHITE, SMALL);
     //
-    drawStatusSmall(90);
+    drawStatusSmall(90+OFFSET_Y);
 }
 
 void PieMenu::onTouchFlick() {
