@@ -131,9 +131,11 @@ public:
         }
         if(never_initialized){
             never_initialized=false;
+#ifdef ALTERNATE_MF_SCENE
 #ifdef AUTO_MF_SCENE
                 push_scene(&multiFunctionScene);
                 return;
+#endif
 #endif
 #ifdef AUTO_JOG_SCENE
                 if (state == Idle) {

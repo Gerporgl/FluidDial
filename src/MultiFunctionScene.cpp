@@ -393,16 +393,15 @@ public:
         std::string cmd("$J=G91F");
         for (int axis = 0; axis < num_axes; ++axis) {
             if (selected(axis)) {
-                int speed=1000;
-
-                int range=abs(distance(axis));
-                if(range <= 100)
-                    speed=250;
-                else if (range<=1000)
-                    speed=1000;
+                int speed;
+                int range=distance(axis);
+                // This could have more jog speed ranges, but is no longer needed if
+                // fluidNC firmware is running with the jog_acceleration_divisor option
+                // set to 10.0 for example.
+                if (range<=1000)
+                    speed=4000;
                 else
-                    speed=2000;
-
+                    speed=5000;
                 cmd += std::to_string(speed);
                 cmd += axisNumToChar(axis);
                 cmd += e4_to_cstr(delta * distance(axis), inInches ? 3 : 2);
