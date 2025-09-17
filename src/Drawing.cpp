@@ -72,7 +72,11 @@ void drawBackground(LGFX_Sprite* sprite, int x, int y) {
 LGFX_Sprite* createPngBackground(const char* filename) {
     LGFX_Sprite* sprite = new LGFX_Sprite(&canvas);
     sprite->setColorDepth(canvas.getColorDepth());
-    sprite->createSprite(240,256);//,320);//canvas.width(), canvas.height());
+    #ifdef ALTERNATE_MF_SCENE
+        sprite->createSprite(240,256);
+    #else
+        sprite->createSprite(canvas.width(), canvas.height());
+    #endif
     drawPngFile(sprite, filename, 0, 0);
     return sprite;
 }
@@ -181,7 +185,12 @@ void Stripe::draw(const char* center, bool highlighted) {
 }
 
 #define PUSH_BUTTON_LINE 212
-#define DIAL_BUTTON_LINE 311 //228
+
+#ifdef ALTERNATE_MF_SCENE
+#define DIAL_BUTTON_LINE 311
+#else
+#define DIAL_BUTTON_LINE 228
+#endif
 
 static int side_button_line() {
     return round_display ? PUSH_BUTTON_LINE : DIAL_BUTTON_LINE;
@@ -274,9 +283,8 @@ void LED::draw(bool highlighted) {
     _y += _gap;
 }
 
+#ifndef USE_M5
 void drawLockIcons(bool locked) {
-   // display.startWrite();
-
     if(locked)
     {
         lock_icon->pushSprite(1, 1);
@@ -288,12 +296,15 @@ void drawLockIcons(bool locked) {
         canvas.fillRect(223,0,16,16,BLACK);
     }
 }
-
 extern bool last_locked;
+#endif
+
 
 void drawMenuTitle(const char* name) {
     centered_text(name, 12);
+#ifndef USE_M5
     drawLockIcons(last_locked);
+#endif
 }
 
 void refreshDisplay() {

@@ -139,7 +139,7 @@ public:
 #endif
 #ifdef AUTO_JOG_SCENE
                 if (state == Idle) {
-                    push_scene(&multiFunctionScene);
+                    push_scene(&jogScene);
                     return;
                 }
 #endif

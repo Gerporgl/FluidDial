@@ -65,7 +65,7 @@ LGFX_Device  xdisplay;
 LGFX_Device& display = xdisplay;
 
 LGFX_Sprite canvas(&display);
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
 LGFX_Sprite buttons[3] = { &display, &display, &display };
 LGFX_Sprite locked_button(&display);
 #endif
@@ -244,7 +244,11 @@ const int n_buttons      = 3;
 const int button_w       = 80;
 const int button_h       = 80;
 const int button_half_wh = button_w / 2;
-const int sprite_wh      = 310; //240;
+#ifdef ALTERNATE_MF_SCENE
+const int sprite_wh      = 310;
+#else
+const int sprite_wh      = 240;
+#endif
 Point     button_wh(button_w, button_h);
 
 int button_colors[] = { RED, YELLOW, GREEN };
@@ -272,6 +276,7 @@ public:
 };
 
 // clang-format off
+#ifndef ALTERNATE_MF_SCENE
 Layout layouts[] = {
 // rotation  sprite_XY        button0_XY
     { 0,      { 0, 0 },        { 0, sprite_wh } }, // Buttons below
@@ -283,14 +288,27 @@ Layout layouts[] = {
     { 3,      { button_w, 0 }, { 0, 0 }         }, // Buttons left
     { 3,      { 0, 0 },        { sprite_wh, 0 } }, // Buttons right
 };
+int32_t layout_num = 0;
+#else
+Layout layouts[] = {
+    { 0,      { 0, 0 },        { 0, sprite_wh } }, // Buttons below
+    { 2,      { 0, 0 },        { 0, sprite_wh } }, // Buttons below
+};
+int32_t layout_num = 1;
+#endif
 int num_layouts = sizeof(layouts)/sizeof(layouts[0]);
 // clang-format on
 
 Layout* layout;
-int32_t layout_num = 4;
+
 
 Point sprite_offset;
 void  set_layout(int n) {
+    if(n>=num_layouts)
+    {
+        layout_num=0;
+        n=0;
+    }
      layout = &layouts[n];
      display.setRotation(layout->rotation());
      sprite_offset = layout->spritePosition;
@@ -381,7 +399,7 @@ void choose_board() {
 }
 #endif
 
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
 void initButton(int n) {
     buttons[n].setColorDepth(display.getColorDepth());
     buttons[n].createSprite(button_w, button_h);
@@ -475,7 +493,7 @@ void init_hardware() {
 
 int last_locked = -1;
 
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
 void redrawButtons() {
     display.startWrite();
     for (int i = 0; i < n_buttons; i++) {
@@ -497,7 +515,7 @@ void show_logo() {
 void base_display() {
     initLockIcons();
     drawLockIcons(last_locked);
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
     initButtons();
     redrawButtons();
 #endif
@@ -514,7 +532,7 @@ void next_layout(int delta) {
     delay(200);
     set_layout(layout_num);
     nvs_set_i32(hw_nvs, "layout", layout_num);
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
     redrawButtons();
 #endif
     drawLockIcons(last_locked);
@@ -576,7 +594,7 @@ bool ui_locked() {
     bool locked = digitalRead(lockout_pin);
     if ((int)locked != last_locked) {
         last_locked = locked;
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
         redrawButtons();
 #endif
         drawLockIcons(last_locked);

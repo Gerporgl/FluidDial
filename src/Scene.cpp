@@ -106,7 +106,7 @@ void dispatch_touch() {
             return;
         }
         int button;
-#ifndef CYD_BUTTONS
+#ifndef NO_SCREEN_BUTTONS
         if (screen_button_touched(t.state == m5::touch_state_t::touch, t.x, t.y, button)) {
             if (t.state == m5::touch_state_t::touch) {
                 dispatch_button(true, button);

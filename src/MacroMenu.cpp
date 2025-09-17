@@ -28,9 +28,9 @@ void MacroItem::show(const Point& where) {
     }
 
     if (_highlighted) {
-        drawRect(where, Point { 200, 50 }, 15, color);
-        text(name(), where + Point { 0, 6 }, BLACK, MEDIUM, middle_center);
-        text(extra, where - Point { 0, 16 }, BLACK, TINY, middle_center);
+        drawRect(where, Point { 220, 44 }, 12, color);
+        text(name(), where + Point { 0, 9 }, BLACK, SMALL, middle_center);
+        text(extra, where - Point { 0, 12 }, BLACK, TINY, middle_center);
     } else {
         text(name(), where, WHITE, SMALL, middle_center);
     }
@@ -105,17 +105,17 @@ public:
             }
         } else {
             if (_selected > 1) {
-                _items[_selected - 2]->show({ 0, 80 });
+                _items[_selected - 2]->show({ 0, 62 });
             }
             if (_selected > 0) {
-                _items[_selected - 1]->show({ 0, 45 });
+                _items[_selected - 1]->show({ 0, 36 });
             }
             _items[_selected]->show({ 0, 0 });
             if (_selected < num_items() - 1) {
-                _items[_selected + 1]->show({ 0, -45 });
+                _items[_selected + 1]->show({ 0, -36 });
             }
             if (_selected < num_items() - 2) {
-                _items[_selected + 2]->show({ 0, -80 });
+                _items[_selected + 2]->show({ 0, -62 });
             }
         }
         buttonLegends();
@@ -168,7 +168,7 @@ public:
     void menuBackground() override {
         background();
 
-        if (num_items()) {
+        /*if (num_items()) {
             // Draw dot showing the selected file
             if (num_items() > 1) {
                 int span   = 100;  // degrees
@@ -180,10 +180,10 @@ public:
                 drawFilledCircle({ dx, dy }, 8, WHITE);
             }
         }
+        */
         if (state != Idle) {
             drawStatus();
         }
-
-        text("Macros", { 0, 100 }, YELLOW, SMALL);
+        drawMenuTitle(current_scene->name());
     }
 } macroMenu;

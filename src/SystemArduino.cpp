@@ -138,7 +138,11 @@ void init_system() {
 
     // Make an offscreen canvas that can be copied to the screen all at once
     canvas.setColorDepth(8);
-    canvas.createSprite(240, 320); // 240);  // display.width(), display.height());
+    #ifdef ALTERNATE_MF_SCENE
+        canvas.createSprite(240, 320);
+    #else
+        canvas.createSprite(240, 240);  // display.width(), display.height());
+    #endif
 }
 void resetFlowControl() {
 #ifndef DISABLE_FLOW_CONTROL
