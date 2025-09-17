@@ -109,9 +109,20 @@ void init_fnc_uart(int uart_num, int tx_pin, int rx_pin) {
         while (1) {}
         return;
     };
-    uart_driver_install(fnc_uart_port, 8192, 0, 0, NULL, ESP_INTR_FLAG_IRAM);
+    // The doc of uart_driver_install explicitly say to not use ESP_INTR_FLAG_IRAM
+    // see https://docs.espressif.com/projects/esp-idf/en/stable/esp32/api-reference/peripherals/uart.html
+    // Removed only for no flow control option, to keep current behavior...
     #ifndef DISABLE_FLOW_CONTROL
+        uart_driver_install(fnc_uart_port, 256, 0, 0, NULL, ESP_INTR_FLAG_IRAM);
         uart_set_sw_flow_ctrl(fnc_uart_port, true, 64, 120);
+    #else
+        // With flow control (and previously), the receive buffer was 256 bytes. Without flow control, it is better to have more
+        // otherwise large receives such as preferences.json when listing macros would fail presumably because of loss
+        // of data in between line parsing.
+        // 8192 bytes takes roughly 73ms to fill at 1 Mbaud, which means in general we should try to process the receive buffer
+        // at least at this rate or faster, but mostly (and only) true if the receive data is larger than 8KB.
+        // The only large one chunk of data that seems possible is preferences.json, which seems around 5.5KB in my case.
+        uart_driver_install(fnc_uart_port, 8192, 0, 0, NULL, 0);
     #endif
     uint32_t baud;
     uart_get_baudrate(fnc_uart_port, &baud);
