@@ -29,6 +29,8 @@ private:
     bool         _cancel_held   = false;
     bool         _continuous    = false;
     LGFX_Sprite* _bg_image      = nullptr;
+    LGFX_Sprite* _img_home      = nullptr;
+    LGFX_Sprite* _img_homing    = nullptr;
 
 public:
     MultiFunctionScene() : Scene("MPG", 4, multi_help_text) {}
@@ -71,8 +73,31 @@ public:
         text("X10", 40+80, 45+64*1+33, _dist_index[0]==1 ? GREEN : WHITE, SMALL, middle_center);
         text("X1", 40+160, 45+64*1+33, _dist_index[0]==0 ? GREEN : WHITE, SMALL, middle_center);
 
-        text("HOME", 40, 45+64*2+33, state==Homing ? RED : WHITE, TINY, middle_center);
+        //text("HOME", 40, 45+64*2+33, state==Homing ? RED : WHITE, TINY, middle_center);
 
+
+        if(state!=Homing)
+        {
+            if(!_img_home)
+            {
+                _img_home = new LGFX_Sprite(&canvas);
+                _img_home->setColorDepth(canvas.getColorDepth());
+                _img_home->createSprite(38,34);
+                drawPngFile(_img_home, "home.png", 0,0);
+            }
+            _img_home->pushSprite(40-19, 45+64*2+33-17, 0);
+        }
+        else
+        {
+            if(!_img_homing)
+            {
+                _img_homing = new LGFX_Sprite(&canvas);
+                _img_homing->setColorDepth(canvas.getColorDepth());
+                _img_homing->createSprite(38,34);
+                drawPngFile(_img_homing, "homing.png", 0,0);
+            }
+            _img_homing->pushSprite(40-19, 45+64*2+33-17, 0);
+        }
         if (_cancelling || _cancel_held) {
             centered_text("Jog Canceled", 310, RED, TINY);
         } else {
@@ -125,152 +150,60 @@ public:
 
     void drawCommandButtons(LGFX_Sprite* sprite){
         int i=0;
+        Point where;
+
         // The round boxes could be included with a better design in the png itself, for now they are draw dynamically for simplicty
         for(int y=0;y<256;y+=64){
             for(int x=0;x<240;x+=80){
-                sprite->fillRoundRect(x+1, y+1, 78, 62, 16, sprite->color888(80,80,80));
-                sprite->fillRoundRect(x+3, y+3, 74, 58, 16, DARKGREY);
+                sprite->fillRoundRect(x+1, y+1, 78, 62, 12, sprite->color888(80,80,80));
+                sprite->fillRoundRect(x+3, y+3, 74, 58, 12, DARKGREY);
+                where.x=x+40;
+                where.y=y+24;
+                where = where.from_display();
                 switch (i) {
                     case 7:
-                        sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
-                        sprite_text(sprite, "Right", x+40,y+41,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Left", x+40,y+41,WHITE,TINY, middle_center);
+                        drawPngFile(_bg_image, "probe_left.png", where.x, where.y);
                         break;
                     case 8:
-                        sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
-                        sprite_text(sprite, "Left", x+40,y+41,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Right", x+40,y+41,WHITE,TINY, middle_center);
+                        drawPngFile(_bg_image, "probe_right.png", where.x, where.y);
                         break;
                     case 9:
-                        sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
-                        sprite_text(sprite, "Z", x+40,y+41,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Z", x+40,y+41,WHITE,TINY, middle_center);
+                        drawPngFile(_bg_image, "probe_z.png", where.x, where.y);
                         break;
                     case 10:
-                        sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
-                        sprite_text(sprite, "Front", x+40,y+41,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Rear", x+40,y+41,WHITE,TINY, middle_center);
+                        drawPngFile(_bg_image, "probe_rear.png", where.x, where.y);
                         break;
                     case 11:
-                        sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
-                        sprite_text(sprite, "Rear", x+40,y+41,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Probe", x+40,y+25,WHITE,TINY, middle_center);
+                        //sprite_text(sprite, "Front", x+40,y+41,WHITE,TINY, middle_center);
+                        drawPngFile(_bg_image, "probe_front.png", where.x, where.y);
                         break;
                 }
                 i++;
             }
         }    
+
     }
 
-    int which(int x, int y) {
-        if (y > 130) {
-            return 2;
-        }
-        return y > 90 ? 1 : 0;
-    }
-
-    void confirm_zero_axes() {
-        std::string confirmMsg("Zero ");
-
-        for (int axis = 0; axis < num_axes; axis++) {
-            if (selected(axis)) {
-                confirmMsg += axisNumToChar(axis);
-            }
-        }
-        confirmMsg += " ?";
-        dbg_println(confirmMsg.c_str());
-        push_scene(&confirmScene, (void*)confirmMsg.c_str());
-    }
     void set_dist_index(int axis, int value) {
         _dist_index[axis] = value;
         setPref("DistanceDigit", axis, value);
     }
 
-    void increment_distance(int axis) {
-        if (_dist_index[axis] < max_index()) {
-            set_dist_index(axis, _dist_index[axis] + 1);
-        }
-    }
-    void increment_distance() {
-        for (int axis = 0; axis < num_axes; axis++) {
-            if (selected(axis)) {
-                increment_distance(axis);
-            }
-        }
-    }
-    void decrement_distance(int axis) {
-        if (_dist_index[axis] > min_index()) {
-            set_dist_index(axis, _dist_index[axis] - 1);
-        }
-    }
-
-    void decrement_distance() {
-        for (int axis = 0; axis < num_axes; axis++) {
-            if (selected(axis)) {
-                decrement_distance(axis);
-            }
-        }
-    }
-    void rotate_distance() {
-        for (int axis = 0; axis < num_axes; axis++) {
-            if (selected(axis)) {
-                if (++_dist_index[axis] >= max_index()) {
-                    _dist_index[axis] = min_index();
-                }
-            }
-        }
-    }
     void cancel_jog() {
         if (state == Jog) {
             fnc_realtime(JogCancel);
             _continuous = false;
             _cancelling = true;
         }
-    }
-    void next_axis() {
-        int the_axis = the_selected_axis();
-        if (the_axis == -2) {
-            unselect_all();
-            select(num_axes - 1);
-            return;
-        }
-        if (the_axis == -1) {
-            select(num_axes - 1);
-            return;
-        }
-        unselect(the_axis);
-        if (++the_axis == num_axes) {
-            the_axis = 0;
-        }
-        select(the_axis);
-    }
-    void prev_axis() {
-        int the_axis = the_selected_axis();
-        if (the_axis == -2) {
-            unselect_all();
-            select(0);
-            return;
-        }
-        if (the_axis == -1) {
-            select(0);
-            return;
-        }
-        unselect(the_axis);
-        if (--the_axis < 0) {
-            the_axis = num_axes - 1;
-        }
-        select(the_axis);
-    }
-    void touch_top() {
-        prev_axis();
-        reDisplay();
-    }
-    void touch_bottom() {
-        next_axis();
-        reDisplay();
-    }
-    void touch_left() {
-        increment_distance();
-        reDisplay();
-    }
-    void touch_right() {
-        decrement_distance();
-        reDisplay();
     }
 
     void onTouchPress() {
@@ -340,12 +273,12 @@ public:
                 break;
             case 7:
                 if (state == Idle)
-                    send_linef("$Localfs/Run=%s", "macros/probe_right.g");
+                    send_linef("$Localfs/Run=%s", "macros/probe_left.g");
                 return;
                 break;
             case 8:
                 if (state == Idle)
-                    send_linef("$Localfs/Run=%s", "macros/probe_left.g");
+                    send_linef("$Localfs/Run=%s", "macros/probe_right.g");
                 return;
                 break;
             case 9:
@@ -355,12 +288,12 @@ public:
                 break;
             case 10:
                 if (state == Idle)
-                    send_linef("$Localfs/Run=%s", "macros/probe_front.g");
+                    send_linef("$Localfs/Run=%s", "macros/probe_rear.g");
                 return;
                 break;
             case 11:
                 if (state == Idle)
-                    send_linef("$Localfs/Run=%s", "macros/probe_rear.g");
+                    send_linef("$Localfs/Run=%s", "macros/probe_front.g");
                     return;
                 break;
         }
