@@ -63,22 +63,23 @@ public:
         if (state != Jog && _cancelling) {
             _cancelling = false;
         }
-        if (_cancelling || _cancel_held) {
-            centered_text("Jog Canceled", 120, RED, MEDIUM);
-        } else {
-            DRO dro(0, 0, 0, 0);
-            for (size_t axis = 0; axis < num_axes; axis++) {
-                dro.draw(40 + axis*80, 45+19, 72 + axis*80, 45+41, axis, 4, selected(axis));
-            }
-            text("X100", 40, 45+64*1+33, _dist_index[0]==2 ? GREEN : WHITE, SMALL, middle_center);
-            text("X10", 40+80, 45+64*1+33, _dist_index[0]==1 ? GREEN : WHITE, SMALL, middle_center);
-            text("X1", 40+160, 45+64*1+33, _dist_index[0]==0 ? GREEN : WHITE, SMALL, middle_center);
+        DRO dro(0, 0, 0, 0);
+        for (size_t axis = 0; axis < num_axes; axis++) {
+            dro.draw(40 + axis*80, 45+19, 72 + axis*80, 45+41, axis, 4, selected(axis));
+        }
+        text("X100", 40, 45+64*1+33, _dist_index[0]==2 ? GREEN : WHITE, SMALL, middle_center);
+        text("X10", 40+80, 45+64*1+33, _dist_index[0]==1 ? GREEN : WHITE, SMALL, middle_center);
+        text("X1", 40+160, 45+64*1+33, _dist_index[0]==0 ? GREEN : WHITE, SMALL, middle_center);
 
-            text("HOME", 40, 45+64*2+33, state==Homing ? RED : WHITE, TINY, middle_center);
+        text("HOME", 40, 45+64*2+33, state==Homing ? RED : WHITE, TINY, middle_center);
+
+        if (_cancelling || _cancel_held) {
+            centered_text("Jog Canceled", 310, RED, TINY);
+        } else {
 
             if (state == Jog) {
                 if (!_continuous) {
-                    centered_text("Touch to cancel jog", 185, YELLOW, TINY);
+                    centered_text("Touch or Lock to cancel jog", 310, YELLOW, TINY);
                 }
             } else {
                 drawButtonLegends("Jog-", "Jog+", "Back");
